@@ -348,13 +348,35 @@ ReUI = {};
         return Math.abs(x - y) < 5; 
     };
 
-    var checkOrientationAndLocation = function() {
-        if ((isSimilarLength(window.innerHeight, context.width) && isSimilarLength(window.innerWidth, context.height)) ||
-            (context.height === 0 || context.width === 0)) {
+    var updateOrientationDom = function(value) {
+        var currentOrient = R.rootEl.getAttribute('orient');
+        if (value === currentOrient) return;
 
+        R.rootEl.setAttribute('orient', value);
+
+        if (value == 'portrait') 
+        {
+            D.removeClass(R.rootEl, 'landscape');
+            D.addClass(R.rootEl, 'portrait');
+        }
+        else if (value == 'landscape')
+        {
+            D.removeClass(R.rootEl, 'portrait');
+            D.addClass(R.rootEl, 'landscape');
+        }
+        else
+        {
+            D.removeClass(R.rootEl, 'portrait');
+            D.removeClass(R.rootEl, 'landscape');
+        }
+    };
+
+    var checkOrientationAndLocation = function() {
+        // Check if screen dimensions changed. Ignore changes where only the height changes (the android keyboard will cause this)
+        if ((window.innerHeight !== context.height || window.innerWidth !== context.width) &&
+               !(window.innerHeight !== context.height && window.innerWidth === context.width)) {
             context.height = window.innerHeight;
             context.width = window.innerWidth;
-
             R.setOrientation(context.height < context.width ? 'landscape' : 'portrait');
         }
 
@@ -477,26 +499,7 @@ ReUI = {};
         },
 
         setOrientation: function(value) {
-            var currentOrient = R.rootEl.getAttribute('orient');
-            if (value === currentOrient) return;
-
-            R.rootEl.setAttribute('orient', value);
-
-            if (value == 'portrait') 
-            {
-                D.removeClass(R.rootEl, 'landscape');
-                D.addClass(R.rootEl, 'portrait');
-            }
-            else if (value == 'landscape')
-            {
-                D.removeClass(R.rootEl, 'portrait');
-                D.addClass(R.rootEl, 'landscape');
-            }
-            else
-            {
-                D.removeClass(R.rootEl, 'portrait');
-                D.removeClass(R.rootEl, 'landscape');
-            }
+            updateOrientationDom(value);
         },
 
         registerFx: function(name, compatible, fn) {
